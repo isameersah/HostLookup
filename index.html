@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HostLookup - Advance IP LOOKUP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Favicon -->
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://img.icons8.com/?size=100&id=xqWTBLAYq9eS&format=png&color=000000">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&family=Space+Mono:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff3e00;
+            --secondary: #00a8ff;
+            --bg: #f0f0f0;
+            --card-bg: #ffffff;
+            --text: #222222;
+            --border: 4px solid #000;
+            --shadow: 8px 8px 0px #000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-stroke: 1px black;
+            text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0.5rem 1rem;
+            background: var(--card-bg);
+            border: var(--border);
+            box-shadow: var(--shadow);
+            transform: rotate(-1deg);
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 3rem;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        #ip-input {
+            flex: 1;
+            padding: 1rem;
+            font-size: 1.2rem;
+            font-family: 'Poppins', sans-serif;
+            border: var(--border);
+            border-right: none;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #ip-input:focus {
+            background: #fffacd;
+        }
+
+        #lookup-btn {
+            padding: 1rem 2rem;
+            background: var(--primary);
+            color: white;
+            border: var(--border);
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #lookup-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 12px 12px 0px #000;
+        }
+
+        #lookup-btn:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow);
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s ease-out forwards;
+            animation-delay: 0.3s;
+        }
+
+        .result-card h2 {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--primary);
+            display: inline-block;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--secondary);
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateX(5px);
+            background: rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .info-label {
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .map-container {
+            height: 300px;
+            margin-top: 2rem;
+            border: var(--border);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+        }
+
+        .loading span {
+            display: inline-block;
+            animation: bounce 1s infinite;
+        }
+
+        .loading span:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .loading span:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Brutalism additions */
+        .brutal-border {
+            position: relative;
+        }
+
+        .brutal-border::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: repeating-linear-gradient(45deg,
+                    var(--primary),
+                    var(--primary) 10px,
+                    var(--secondary) 10px,
+                    var(--secondary) 20px);
+            z-index: -1;
+        }
+
+        .glitch-effect {
+            position: relative;
+        }
+
+        .glitch-effect:hover::before {
+            content: attr(data-text);
+            position: absolute;
+            left: -2px;
+            text-shadow: 2px 0 var(--primary);
+            background: var(--card-bg);
+            overflow: hidden;
+            clip: rect(0, 900px, 0, 0);
+            animation: noise-anim 2s infinite linear alternate-reverse;
+        }
+
+        .glitch-effect:hover::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 2px;
+            text-shadow: -2px 0 var(--secondary);
+            background: var(--card-bg);
+            overflow: hidden;
+            clip: rect(0, 900px, 0, 0);
+            animation: noise-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        @keyframes noise-anim {
+            0% {
+                clip: rect(31px, 9999px, 94px, 0);
+            }
+
+            10% {
+                clip: rect(112px, 9999px, 76px, 0);
+            }
+
+            20% {
+                clip: rect(85px, 9999px, 77px, 0);
+            }
+
+            30% {
+                clip: rect(27px, 9999px, 97px, 0);
+            }
+
+            40% {
+                clip: rect(64px, 9999px, 98px, 0);
+            }
+
+            50% {
+                clip: rect(61px, 9999px, 85px, 0);
+            }
+
+            60% {
+                clip: rect(99px, 9999px, 114px, 0);
+            }
+
+            70% {
+                clip: rect(34px, 9999px, 115px, 0);
+            }
+
+            80% {
+                clip: rect(98px, 9999px, 129px, 0);
+            }
+
+            90% {
+                clip: rect(43px, 9999px, 96px, 0);
+            }
+
+            100% {
+                clip: rect(82px, 9999px, 64px, 0);
+            }
+        }
+
+        @keyframes noise-anim-2 {
+            0% {
+                clip: rect(65px, 9999px, 119px, 0);
+            }
+
+            10% {
+                clip: rect(25px, 9999px, 145px, 0);
+            }
+
+            20% {
+                clip: rect(50px, 9999px, 137px, 0);
+            }
+
+            30% {
+                clip: rect(60px, 9999px, 177px, 0);
+            }
+
+            40% {
+                clip: rect(10px, 9999px, 101px, 0);
+            }
+
+            50% {
+                clip: rect(2px, 9999px, 144px, 0);
+            }
+
+            60% {
+                clip: rect(23px, 9999px, 156px, 0);
+            }
+
+            70% {
+                clip: rect(99px, 9999px, 175px, 0);
+            }
+
+            80% {
+                clip: rect(188px, 9999px, 200px, 0);
+            }
+
+            90% {
+                clip: rect(55px, 9999px, 161px, 0);
+            }
+
+            100% {
+                clip: rect(44px, 9999px, 172px, 0);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            #ip-input {
+                border-right: var(--border);
+                border-bottom: none;
+            }
+
+            #lookup-btn {
+                width: 100%;
+            }
+        }
+
+
+        /* Add this new style to existing CSS */
+        .accuracy-warning {
+            grid-column: 1 / -1;
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            margin-bottom: 1rem;
+        }
+
+        .accuracy-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .accuracy-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 3px solid #000;
+            font-family: 'Space Mono', monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .accuracy-btn:hover {
+            background: #000;
+            color: white;
+        }
+
+        .social-bar {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .social-bar a {
+            background: white;
+            border: 3px solid black;
+            border-radius: 50%;
+            padding: 6px;
+            box-shadow: 5px 5px 0 black;
+            transition: transform 0.2s, background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .social-bar a:hover {
+            transform: scale(1.1);
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1 class="glitch-effect" data-text="IP LookUP">HostLookup</h1>
+            <p class="subtitle brutal-border">Geolocation lookup with Live Map, unfiltered data. No fluff, just facts.
+            </p>
+        </header>
+
+        <div class="search-box">
+            <input type="text" id="ip-input" placeholder="Enter IP address or leave blank for your own IP">
+            <button id="lookup-btn">LOOKUP</button>
+        </div>
+
+        <div class="loading">
+            <span>B</span><span>R</span><span>U</span><span>T</span><span>A</span><span>L</span><span>I</span><span>Z</span><span>I</span><span>N</span><span>G</span>
+        </div>
+
+        <div class="result-card" id="result-card" style="display: none;">
+            <h2>IP INFORMATION</h2>
+            <div class="info-grid" id="info-grid">
+                <!-- Info items will be inserted here by JavaScript -->
+            </div>
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+        </div>
+
+        <footer>
+            &copy; <span id="year"></span> HostLookup. All rights reserved. | Powered by ipinfo.io API | Brutal Design
+            System v1.0
+        </footer>
+    </div>
+
+    <!-- Load Leaflet.js for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script>
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // [Keep previous variable declarations and event listeners]
+
+            async function lookupIp(ip = '') {
+                loadingDiv.style.display = 'block';
+                resultCard.style.display = 'none';
+                infoGrid.innerHTML = '';
+
+                try {
+                    // Try multiple services and compare results
+                    const results = await Promise.allSettled([
+                        fetchIpApi(ip),
+                        fetchIpInfo(ip),
+                        fetchIpApiCo(ip)
+                    ]);
+
+                    // Find the first successful result
+                    let data = results.find(r => r.status === 'fulfilled' && !r.value?.error)?.value;
+
+                    if (!data) {
+                        const errors = results.map(r => r.reason || r.value?.error).join(' | ');
+                        throw new Error(`All services failed: ${errors}`);
+                    }
+
+                    displayResults(data);
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    loadingDiv.style.display = 'none';
+                    showError(error.message || 'Error fetching IP information');
+                }
+            }
+
+            // [Keep previous fetchIpApi and fetchIpInfo functions]
+
+            async function fetchIpApiCo(ip = '') {
+                try {
+                    const url = ip
+                        ? `https://api.ipapi.com/${ip}?access_key=YOUR_FREE_ACCESS_KEY`
+                        : `https://api.ipapi.com/check?access_key=YOUR_FREE_ACCESS_KEY`;
+
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network response not ok');
+
+                    const data = await response.json();
+                    if (data.error) return { error: data.error.info };
+
+                    return {
+                        ip: data.ip,
+                        city: data.city,
+                        region: data.region_name,
+                        country: data.country_code,
+                        loc: `${data.latitude},${data.longitude}`,
+                        org: data.connection?.isp,
+                        postal: data.zip,
+                        timezone: data.time_zone?.id,
+                        hostname: data.hostname
+                    };
+                } catch (error) {
+                    return { error: 'ipapi.com: ' + error.message };
+                }
+            }
+
+            function displayResults(data) {
+                loadingDiv.style.display = 'none';
+                infoGrid.innerHTML = '';
+
+                // Add accuracy disclaimer
+                const warning = document.createElement('div');
+                warning.className = 'info-item accuracy-warning';
+                warning.innerHTML = `
+                    <div class="info-label">ACCURACY NOTE</div>
+                    <div class="info-value">
+                        IP geolocation is never 100% accurate. 
+                        <br>Internet providers may route traffic through different locations.
+                    </div>
+                    <div class="accuracy-controls">
+                        <button class="accuracy-btn" id="report-inaccurate">REPORT INACCURATE</button>
+                        <button class="accuracy-btn" id="try-another-service">TRY ANOTHER SERVICE</button>
+                    </div>
+                `;
+                infoGrid.appendChild(warning);
+
+                // [Keep rest of the displayResults function the same]
+
+                // Add new event listeners
+                document.getElementById('report-inaccurate').addEventListener('click', () => {
+                    alert('Thanks for reporting! We\'ll use this to improve our service.');
+                });
+
+                document.getElementById('try-another-service').addEventListener('click', () => {
+                    lookupIp(ipInput.value.trim());
+                });
+            }
+
+            // [Keep rest of the functions the same]
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ipInput = document.getElementById('ip-input');
+            const lookupBtn = document.getElementById('lookup-btn');
+            const resultCard = document.getElementById('result-card');
+            const infoGrid = document.getElementById('info-grid');
+            const loadingDiv = document.querySelector('.loading');
+            let map;
+            let marker;
+
+            // Check if user wants to look up their own IP
+            lookupBtn.addEventListener('click', function () {
+                const ip = ipInput.value.trim();
+                lookupIp(ip);
+            });
+
+            ipInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    const ip = ipInput.value.trim();
+                    lookupIp(ip);
+                }
+            });
+
+            async function lookupIp(ip = '') {
+                loadingDiv.style.display = 'block';
+                resultCard.style.display = 'none';
+                infoGrid.innerHTML = '';
+
+                try {
+                    // Try ipapi.co first (no token needed)
+                    let data = await fetchIpApi(ip);
+
+                    // If ipapi fails, try ipinfo.io with demo token
+                    if (!data || data.error) {
+                        data = await fetchIpInfo(ip);
+                    }
+
+                    if (data && !data.error) {
+                        displayResults(data);
+                    } else {
+                        throw new Error(data?.error || 'Unknown error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    loadingDiv.style.display = 'none';
+                    showError(error.message || 'Error fetching IP information');
+                }
+            }
+
+            async function fetchIpApi(ip = '') {
+                try {
+                    const url = ip
+                        ? `https://ipapi.co/${ip}/json/`
+                        : `https://ipapi.co/json/`;
+
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network response not ok');
+
+                    const data = await response.json();
+
+                    // Convert ipapi.co format to match ipinfo.io format
+                    if (data.error) return data;
+
+                    return {
+                        ip: data.ip,
+                        city: data.city,
+                        region: data.region,
+                        country: data.country,
+                        loc: `${data.latitude},${data.longitude}`,
+                        org: data.org,
+                        postal: data.postal,
+                        timezone: data.timezone,
+                        hostname: data.hostname || null
+                    };
+                } catch (error) {
+                    return { error: 'ipapi.co: ' + error.message };
+                }
+            }
+
+            async function fetchIpInfo(ip = '') {
+                try {
+                    const url = ip
+                        ? `https://ipinfo.io/${ip}/geo?token=demo`
+                        : `https://ipinfo.io/geo?token=demo`;
+
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network response not ok');
+
+                    return await response.json();
+                } catch (error) {
+                    return { error: 'ipinfo.io: ' + error.message };
+                }
+            }
+
+            function showError(message) {
+                const errorHtml = `
+                    <div class="info-item" style="grid-column: 1/-1; background: #ffebee; border-left: 4px solid #f44336;">
+                        <div class="info-label">ERROR</div>
+                        <div class="info-value">${message}</div>
+                        <div class="info-value" style="font-size: 0.9rem; margin-top: 0.5rem;">
+                            Try refreshing or checking your network connection.
+                        </div>
+                    </div>
+                `;
+                infoGrid.innerHTML = errorHtml;
+                resultCard.style.display = 'block';
+            }
+
+            function displayResults(data) {
+                loadingDiv.style.display = 'none';
+
+                // Create info items
+                const fields = [
+                    { key: 'ip', label: 'IP ADDRESS' },
+                    { key: 'city', label: 'CITY' },
+                    { key: 'region', label: 'REGION' },
+                    { key: 'country', label: 'COUNTRY' },
+                    { key: 'loc', label: 'LOCATION' },
+                    { key: 'org', label: 'ORGANIZATION' },
+                    { key: 'postal', label: 'POSTAL CODE' },
+                    { key: 'timezone', label: 'TIMEZONE' },
+                    { key: 'hostname', label: 'HOSTNAME' }
+                ];
+
+                fields.forEach(field => {
+                    if (data[field.key]) {
+                        const infoItem = document.createElement('div');
+                        infoItem.className = 'info-item';
+
+                        const label = document.createElement('div');
+                        label.className = 'info-label';
+                        label.textContent = field.label;
+
+                        const val = document.createElement('div');
+                        val.className = 'info-value';
+                        val.textContent = data[field.key];
+
+                        infoItem.appendChild(label);
+                        infoItem.appendChild(val);
+                        infoGrid.appendChild(infoItem);
+                    }
+                });
+
+                resultCard.style.display = 'block';
+
+                if (data.loc) {
+                    const [lat, lng] = data.loc.split(',');
+                    initMap(parseFloat(lat), parseFloat(lng), data.city || 'Location');
+                }
+            }
+
+            function initMap(lat, lng, title) {
+                if (map) {
+                    map.setView([lat, lng], 13);
+                    if (marker) {
+                        marker.setLatLng([lat, lng]);
+                    } else {
+                        marker = L.marker([lat, lng]).addTo(map);
+                    }
+                } else {
+                    map = L.map('map').setView([lat, lng], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(map);
+
+                    marker = L.marker([lat, lng]).addTo(map);
+                }
+
+                marker.bindPopup(`<b>${title}</b><br>${lat}, ${lng}`).openPopup();
+            }
+
+            // Initial load
+            lookupIp();
+        });
+    </script>
+    <!-- Floating Social Bar -->
+    <div class="social-bar">
+        <!-- GitHub -->
+        <a href="https://github.com/isameersah" target="_blank" title="View on GitHub">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="black">
+                <path
+                    d="M12 .5C5.648.5.5 5.648.5 12c0 5.086 3.292 9.389 7.868 10.912.575.105.784-.25.784-.556 0-.275-.011-1.011-.016-1.984-3.2.695-3.875-1.543-3.875-1.543-.523-1.33-1.278-1.684-1.278-1.684-1.045-.715.08-.699.08-.699 1.156.082 1.763 1.188 1.763 1.188 1.027 1.757 2.695 1.25 3.354.955.104-.743.402-1.25.73-1.538-2.554-.291-5.238-1.277-5.238-5.683 0-1.256.448-2.283 1.184-3.089-.119-.29-.513-1.459.113-3.041 0 0 .967-.31 3.17 1.18a11.07 11.07 0 0 1 2.884-.388c.978.005 1.963.132 2.884.388 2.202-1.49 3.168-1.18 3.168-1.18.627 1.582.233 2.751.114 3.041.737.806 1.183 1.833 1.183 3.089 0 4.418-2.688 5.389-5.248 5.675.414.354.782 1.052.782 2.12 0 1.53-.015 2.761-.015 3.138 0 .309.208.667.79.554C20.71 21.384 24 17.081 24 12c0-6.352-5.148-11.5-12-11.5z" />
+            </svg>
+        </a>
+        <!-- LinkedIn -->
+        <a href="https://linkedin.com/in/isameersah" target="_blank" title="Connect on LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="black">
+                <path
+                    d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8.5h4V24h-4V8.5zM8.5 8.5h3.8v2.1h.05c.53-1 1.84-2.1 3.79-2.1 4.05 0 4.8 2.65 4.8 6.1V24h-4v-7.5c0-1.8-.03-4.1-2.5-4.1-2.5 0-2.9 1.95-2.9 4v7.6h-4V8.5z" />
+            </svg>
+        </a>
+        <!-- Facebook -->
+        <a href="https://facebook.com/isameersah" target="_blank" title="Follow on Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="black">
+                <path
+                    d="M22.675 0H1.325C.593 0 0 .593 0 1.326v21.348C0 23.407.593 24 1.325 24H12.82V14.706h-3.3v-3.6h3.3V8.413c0-3.26 1.993-5.04 4.9-5.04 1.394 0 2.593.104 2.94.15v3.4h-2.018c-1.583 0-1.888.753-1.888 1.854v2.429h3.774l-.492 3.6h-3.282V24h6.437C23.407 24 24 23.407 24 22.674V1.326C24 .593 23.407 0 22.675 0z" />
+            </svg>
+        </a>
+    </div>
+
+</body>
+
+</html>
